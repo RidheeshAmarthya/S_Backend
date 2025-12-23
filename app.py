@@ -38,18 +38,31 @@ CORS(app)  # Enable CORS for API endpoints
 app.register_blueprint(api_bp, url_prefix='/api')
 app.register_blueprint(admin_bp, url_prefix='/admin')
 
-# Initialize database tables on app startup (works with gunicorn)
-# This runs when the module is imported, ensuring tables exist before first request
-with app.app_context():
+# Initialize database on first request (non-blocking for gunicorn startup)
+_db_initialized = False
+
+def init_database():
+    """Initialize database tables and sample data on first request"""
+    global _db_initialized
+    if _db_initialized:
+        return
+    
     try:
-        db.create_all()
-        # Check if database is empty and initialize sample data
-        if FoundationalPrinciple.query.count() == 0:
-            from init_data import init_sample_data
-            init_sample_data()
+        with app.app_context():
+            db.create_all()
+            # Check if database is empty and initialize sample data
+            if FoundationalPrinciple.query.count() == 0:
+                from init_data import init_sample_data
+                init_sample_data()
+        _db_initialized = True
     except Exception as e:
-        # Log error but don't crash - tables might already exist or DB not ready yet
-        print(f"Database initialization note: {e}")
+        # Log error but don't crash - will retry on next request
+        print(f"Database initialization error: {e}")
+
+@app.before_request
+def ensure_database():
+    """Ensure database is initialized before handling requests"""
+    init_database()
 
 @app.route('/')
 def index():
