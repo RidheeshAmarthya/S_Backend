@@ -4,6 +4,7 @@ from models import db, FoundationalPrinciple
 from api_routes import api_bp
 from admin_routes import admin_bp
 import os
+import threading
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production-12345')
@@ -38,31 +39,35 @@ CORS(app)  # Enable CORS for API endpoints
 app.register_blueprint(api_bp, url_prefix='/api')
 app.register_blueprint(admin_bp, url_prefix='/admin')
 
-# Initialize database on first request (non-blocking for gunicorn startup)
+# Initialize database tables (non-blocking, happens after gunicorn starts)
+_db_init_lock = threading.Lock()
 _db_initialized = False
+_db_init_started = False
 
 def init_database():
-    """Initialize database tables and sample data on first request"""
-    global _db_initialized
-    if _db_initialized:
-        return
-    
-    try:
-        with app.app_context():
-            db.create_all()
-            # Check if database is empty and initialize sample data
-            if FoundationalPrinciple.query.count() == 0:
-                from init_data import init_sample_data
-                init_sample_data()
-        _db_initialized = True
-    except Exception as e:
-        # Log error but don't crash - will retry on next request
-        print(f"Database initialization error: {e}")
+    """Initialize database tables and sample data"""
+    global _db_initialized, _db_init_started
+    with _db_init_lock:
+        if _db_initialized or _db_init_started:
+            return
+        _db_init_started = True
+        
+        try:
+            with app.app_context():
+                db.create_all()
+                # Check if database is empty and initialize sample data
+                if FoundationalPrinciple.query.count() == 0:
+                    from init_data import init_sample_data
+                    init_sample_data()
+            _db_initialized = True
+            print("Database initialized successfully")
+        except Exception as e:
+            # Log error but don't crash
+            print(f"Database initialization error: {e}")
+            _db_init_started = False  # Allow retry
 
-@app.before_request
-def ensure_database():
-    """Ensure database is initialized before handling requests"""
-    init_database()
+# Start database initialization in background thread immediately
+threading.Thread(target=init_database, daemon=True).start()
 
 @app.route('/')
 def index():
