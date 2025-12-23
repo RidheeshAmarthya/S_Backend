@@ -67,7 +67,11 @@ def init_database():
 def ensure_database():
     """Ensure database is initialized before handling requests"""
     if not _db_initialized:
-        init_database()
+        try:
+            init_database()
+        except Exception as e:
+            # Don't block request if DB init fails
+            print(f"DB init warning: {e}")
 
 @app.route('/')
 def index():
