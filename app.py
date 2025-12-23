@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, send_from_directory
+from flask import Flask, render_template, request, jsonify, send_from_directory, redirect, url_for
 from flask_cors import CORS
 from models import db, FoundationalPrinciple
 from api_routes import api_bp
@@ -41,7 +41,7 @@ app.register_blueprint(admin_bp, url_prefix='/admin')
 @app.route('/')
 def index():
     """Redirect to admin dashboard"""
-    return render_template('admin/index.html')
+    return redirect(url_for('admin.dashboard'))
 
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
