@@ -1,0 +1,36 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="card">
+    <h2>Foundational Principles</h2>
+    <p>These are the 7 fixed foundational principles (cannot be deleted).</p>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Core Pillars Count</th>
+                <th>Created At</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for principle in principles %}
+            <tr>
+                <td>{{ principle.id }}</td>
+                <td><strong>{{ principle.name }}</strong></td>
+                <td>{{ principle.description or '-' }}</td>
+                <td>{{ principle.core_pillars|length }}</td>
+                <td>{{ principle.created_at.strftime('%Y-%m-%d') if principle.created_at else '-' }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5" style="text-align: center; color: #7f8c8d;">No foundational principles found</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+

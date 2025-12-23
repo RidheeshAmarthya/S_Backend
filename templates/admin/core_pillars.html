@@ -1,0 +1,116 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="card">
+    <h2>Core Pillars</h2>
+    <button class="btn btn-primary" onclick="document.getElementById('createModal').style.display='block'">+ Add Core Pillar</button>
+    
+    <table style="margin-top: 1rem;">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Principle</th>
+                <th>Author</th>
+                <th>Certifications</th>
+                <th>Image</th>
+                <th>Strategies</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for pillar in pillars %}
+            <tr>
+                <td>{{ pillar.id }}</td>
+                <td><strong>{{ pillar.name }}</strong></td>
+                <td>{{ pillar.foundational_principle.name if pillar.foundational_principle else '-' }}</td>
+                <td>{{ pillar.author or '-' }}</td>
+                <td>
+                    {% for cert in pillar.certifications %}
+                        <span style="background: #ecf0f1; padding: 0.2rem 0.5rem; border-radius: 3px; margin-right: 0.3rem; font-size: 0.85rem;">{{ cert.name }}</span>
+                    {% endfor %}
+                </td>
+                <td>
+                    {% if pillar.image_url %}
+                        <img src="{{ pillar.image_url }}" alt="Image" class="thumbnail">
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+                <td>{{ pillar.sustainability_strategies|length }}</td>
+                <td>
+                    <form method="POST" action="{{ url_for('admin.delete_core_pillar', pillar_id=pillar.id) }}" style="display: inline;" onsubmit="return confirm('Are you sure?')">
+                        <button type="submit" class="btn btn-danger" style="padding: 0.3rem 0.6rem; font-size: 0.8rem;">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="8" style="text-align: center; color: #7f8c8d;">No core pillars found</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Create Modal -->
+<div id="createModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="document.getElementById('createModal').style.display='none'">&times;</span>
+        <h2>Create Core Pillar</h2>
+        <form method="POST" action="{{ url_for('admin.create_core_pillar') }}" enctype="multipart/form-data">
+            <div class="form-group">
+                <label>Foundational Principle *</label>
+                <select name="foundational_principle_id" required>
+                    <option value="">Select a principle</option>
+                    {% for principle in principles %}
+                    <option value="{{ principle.id }}">{{ principle.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Name *</label>
+                <input type="text" name="name" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Description</label>
+                <textarea name="description"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label>Text Content (with photos)</label>
+                <textarea name="text_content"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label>Author</label>
+                <input type="text" name="author">
+            </div>
+            
+            <div class="form-group">
+                <label>Image</label>
+                <input type="file" name="image" accept="image/*">
+            </div>
+            
+            <div class="form-group">
+                <label>Green Building Certifications (multi-select)</label>
+                <div class="checkbox-group">
+                    {% for cert in certifications %}
+                    <label>
+                        <input type="checkbox" name="certification_ids" value="{{ cert.id }}">
+                        {{ cert.name }}
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <button type="submit" class="btn btn-success">Create</button>
+            <button type="button" class="btn" onclick="document.getElementById('createModal').style.display='none'">Cancel</button>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
+

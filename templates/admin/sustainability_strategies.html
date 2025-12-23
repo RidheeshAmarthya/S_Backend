@@ -1,0 +1,143 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="card">
+    <h2>Sustainability Strategies</h2>
+    <button class="btn btn-primary" onclick="document.getElementById('createModal').style.display='block'">+ Add Strategy</button>
+    
+    <table style="margin-top: 1rem;">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Core Pillar</th>
+                <th>Author</th>
+                <th>Cost</th>
+                <th>Performance</th>
+                <th>Synergies</th>
+                <th>Image</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for strategy in strategies %}
+            <tr>
+                <td>{{ strategy.id }}</td>
+                <td><strong>{{ strategy.name }}</strong></td>
+                <td>{{ strategy.core_pillar.name if strategy.core_pillar else '-' }}</td>
+                <td>{{ strategy.author or '-' }}</td>
+                <td>{{ strategy.cost or '-' }}</td>
+                <td>{{ strategy.performance_contribution or '-' }}</td>
+                <td>
+                    {% for synergy in strategy.synergies %}
+                        <span style="background: #ecf0f1; padding: 0.2rem 0.5rem; border-radius: 3px; margin-right: 0.3rem; font-size: 0.85rem;">{{ synergy.name }}</span>
+                    {% endfor %}
+                </td>
+                <td>
+                    {% if strategy.image_url %}
+                        <img src="{{ strategy.image_url }}" alt="Image" class="thumbnail">
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+                <td>
+                    <form method="POST" action="{{ url_for('admin.delete_sustainability_strategy', strategy_id=strategy.id) }}" style="display: inline;" onsubmit="return confirm('Are you sure?')">
+                        <button type="submit" class="btn btn-danger" style="padding: 0.3rem 0.6rem; font-size: 0.8rem;">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="9" style="text-align: center; color: #7f8c8d;">No sustainability strategies found</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Create Modal -->
+<div id="createModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="document.getElementById('createModal').style.display='none'">&times;</span>
+        <h2>Create Sustainability Strategy</h2>
+        <form method="POST" action="{{ url_for('admin.create_sustainability_strategy') }}" enctype="multipart/form-data">
+            <div class="form-group">
+                <label>Core Pillar *</label>
+                <select name="core_pillar_id" required>
+                    <option value="">Select a core pillar</option>
+                    {% for pillar in pillars %}
+                    <option value="{{ pillar.id }}">{{ pillar.name }} ({{ pillar.foundational_principle.name }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Name *</label>
+                <input type="text" name="name" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Description</label>
+                <textarea name="description"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label>Text Content (with photos)</label>
+                <textarea name="text_content"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label>Author</label>
+                <input type="text" name="author">
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Cost *</label>
+                    <select name="cost" required>
+                        <option value="">Select cost</option>
+                        <option value="Innovative">Innovative</option>
+                        <option value="Very Low">Very Low</option>
+                        <option value="Low">Low</option>
+                        <option value="Moderate">Moderate</option>
+                        <option value="High">High</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Performance Contribution *</label>
+                    <select name="performance_contribution" required>
+                        <option value="">Select performance</option>
+                        <option value="Low">Low</option>
+                        <option value="Moderate">Moderate</option>
+                        <option value="High">High</option>
+                        <option value="Exemplary">Exemplary</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>Image</label>
+                <input type="file" name="image" accept="image/*">
+            </div>
+            
+            <div class="form-group">
+                <label>Synergies (multi-select)</label>
+                <div class="checkbox-group">
+                    {% for synergy in synergies %}
+                    <label>
+                        <input type="checkbox" name="synergy_ids" value="{{ synergy.id }}">
+                        {{ synergy.name }}
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <button type="submit" class="btn btn-success">Create</button>
+            <button type="button" class="btn" onclick="document.getElementById('createModal').style.display='none'">Cancel</button>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
+

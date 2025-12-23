@@ -1,0 +1,119 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="card">
+    <h2>Projects</h2>
+    <button class="btn btn-primary" onclick="document.getElementById('createModal').style.display='block'">+ Add Project</button>
+    
+    <table style="margin-top: 1rem;">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Project Name</th>
+                <th>Size</th>
+                <th>Address</th>
+                <th>Construction Type</th>
+                <th>Project Type</th>
+                <th>Design Stage</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for project in projects %}
+            <tr>
+                <td>{{ project.id }}</td>
+                <td><strong>{{ project.project_name }}</strong></td>
+                <td>{{ project.project_size or '-' }}</td>
+                <td>{{ project.project_address or '-' }}</td>
+                <td>{{ project.construction_type or '-' }}</td>
+                <td>{{ project.project_type or '-' }}</td>
+                <td>{{ project.design_stage or '-' }}</td>
+                <td>
+                    <form method="POST" action="{{ url_for('admin.delete_project', project_id=project.id) }}" style="display: inline;" onsubmit="return confirm('Are you sure?')">
+                        <button type="submit" class="btn btn-danger" style="padding: 0.3rem 0.6rem; font-size: 0.8rem;">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="8" style="text-align: center; color: #7f8c8d;">No projects found</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Create Modal -->
+<div id="createModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="document.getElementById('createModal').style.display='none'">&times;</span>
+        <h2>Create Project</h2>
+        <form method="POST" action="{{ url_for('admin.create_project') }}">
+            <div class="form-group">
+                <label>Project Name *</label>
+                <input type="text" name="project_name" required>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Project Size</label>
+                    <input type="number" name="project_size" step="0.01">
+                </div>
+                
+                <div class="form-group">
+                    <label>Construction Type</label>
+                    <select name="construction_type">
+                        <option value="">Select type</option>
+                        <option value="New Construction">New Construction</option>
+                        <option value="Retrofit">Retrofit</option>
+                        <option value="Interior Renovation">Interior Renovation</option>
+                        <option value="Fit-Out">Fit-Out</option>
+                        <option value="Extension">Extension</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>Project Address</label>
+                <input type="text" name="project_address">
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Project Type</label>
+                    <select name="project_type">
+                        <option value="">Select type</option>
+                        <option value="Resi - Detached House">Resi - Detached House</option>
+                        <option value="Resi - Apartment Unit">Resi - Apartment Unit</option>
+                        <option value="Resi - Apartment Building">Resi - Apartment Building</option>
+                        <option value="Office">Office</option>
+                        <option value="Educational">Educational</option>
+                        <option value="Retail">Retail</option>
+                        <option value="Industrial">Industrial</option>
+                        <option value="Data Centre">Data Centre</option>
+                        <option value="Other Commercial">Other Commercial</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Design Stage</label>
+                    <select name="design_stage">
+                        <option value="">Select stage</option>
+                        <option value="Feasibility Study">Feasibility Study</option>
+                        <option value="Concept Design">Concept Design</option>
+                        <option value="Technical Design">Technical Design</option>
+                        <option value="Construction">Construction</option>
+                        <option value="Handover & Close-Out">Handover & Close-Out</option>
+                        <option value="Operation / In-Use">Operation / In-Use</option>
+                    </select>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn btn-success">Create</button>
+            <button type="button" class="btn" onclick="document.getElementById('createModal').style.display='none'">Cancel</button>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
+

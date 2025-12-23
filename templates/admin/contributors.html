@@ -1,0 +1,90 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="card">
+    <h2>Contributors</h2>
+    <button class="btn btn-primary" onclick="document.getElementById('createModal').style.display='block'">+ Add Contributor</button>
+    
+    <table style="margin-top: 1rem;">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Role</th>
+                <th>Email</th>
+                <th>Bio</th>
+                <th>Image</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for contributor in contributors %}
+            <tr>
+                <td>{{ contributor.id }}</td>
+                <td><strong>{{ contributor.name }}</strong></td>
+                <td>{{ contributor.role or '-' }}</td>
+                <td>{{ contributor.email or '-' }}</td>
+                <td>{{ (contributor.bio[:50] + '...') if contributor.bio and contributor.bio|length > 50 else (contributor.bio or '-') }}</td>
+                <td>
+                    {% if contributor.image_url %}
+                        <img src="{{ contributor.image_url }}" alt="Image" class="thumbnail">
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+                <td>
+                    <form method="POST" action="{{ url_for('admin.delete_contributor', contributor_id=contributor.id) }}" style="display: inline;" onsubmit="return confirm('Are you sure?')">
+                        <button type="submit" class="btn btn-danger" style="padding: 0.3rem 0.6rem; font-size: 0.8rem;">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="7" style="text-align: center; color: #7f8c8d;">No contributors found</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Create Modal -->
+<div id="createModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="document.getElementById('createModal').style.display='none'">&times;</span>
+        <h2>Create Contributor</h2>
+        <form method="POST" action="{{ url_for('admin.create_contributor') }}" enctype="multipart/form-data">
+            <div class="form-group">
+                <label>Name *</label>
+                <input type="text" name="name" required>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Role</label>
+                    <input type="text" name="role">
+                </div>
+                
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" name="email">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>Bio</label>
+                <textarea name="bio"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label>Image</label>
+                <input type="file" name="image" accept="image/*">
+            </div>
+            
+            <button type="submit" class="btn btn-success">Create</button>
+            <button type="button" class="btn" onclick="document.getElementById('createModal').style.display='none'">Cancel</button>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
+

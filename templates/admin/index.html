@@ -1,0 +1,52 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="stats-grid">
+    <div class="stat-card">
+        <h3>{{ stats.foundational_principles }}</h3>
+        <p>Foundational Principles</p>
+    </div>
+    <div class="stat-card">
+        <h3>{{ stats.core_pillars }}</h3>
+        <p>Core Pillars</p>
+    </div>
+    <div class="stat-card">
+        <h3>{{ stats.sustainability_strategies }}</h3>
+        <p>Sustainability Strategies</p>
+    </div>
+    <div class="stat-card">
+        <h3>{{ stats.projects }}</h3>
+        <p>Projects</p>
+    </div>
+    <div class="stat-card">
+        <h3>{{ stats.contributors }}</h3>
+        <p>Contributors</p>
+    </div>
+</div>
+
+<div class="card">
+    <h2>Welcome to Sustainability Admin Panel</h2>
+    <p>Use the navigation menu to manage:</p>
+    <ul style="margin-left: 2rem; margin-top: 1rem;">
+        <li><strong>Foundational Principles:</strong> View the 7 foundational principles (Layer 1)</li>
+        <li><strong>Core Pillars:</strong> Manage core pillars under each principle (Layer 2)</li>
+        <li><strong>Sustainability Strategies:</strong> Manage strategies under each core pillar (Layer 3)</li>
+        <li><strong>Projects:</strong> Manage project portfolio entries</li>
+        <li><strong>Contributors:</strong> Manage contributor information</li>
+    </ul>
+    
+    <h3 style="margin-top: 2rem; color: #3498db;">API Endpoints</h3>
+    <p>All data is also available via REST API endpoints:</p>
+    <ul style="margin-left: 2rem; margin-top: 1rem; font-family: monospace;">
+        <li><code>GET /api/foundational-principles</code></li>
+        <li><code>GET /api/core-pillars</code></li>
+        <li><code>GET /api/sustainability-strategies</code></li>
+        <li><code>GET /api/projects</code></li>
+        <li><code>GET /api/contributors</code></li>
+        <li><code>GET /api/certifications</code></li>
+        <li><code>GET /api/synergies</code></li>
+    </ul>
+    <p style="margin-top: 1rem;">Use <code>POST</code>, <code>PUT</code>, and <code>DELETE</code> methods for CRUD operations.</p>
+</div>
+{% endblock %}
+
